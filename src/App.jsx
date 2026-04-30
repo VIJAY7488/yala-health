@@ -64,7 +64,6 @@ const Star = ({ className }) => (
 export default function YalaModernWebsite() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeProduct, setActiveProduct] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
   const [showContactModal, setShowContactModal] = useState(false);
@@ -168,16 +167,11 @@ export default function YalaModernWebsite() {
   const tiltStat2 = useTilt();
   const tiltStat3 = useTilt();
   const tiltStat4 = useTilt();
-  const tiltArea1 = useTilt();
-  const tiltArea2 = useTilt();
-  const tiltArea3 = useTilt();
-  const tiltArea4 = useTilt();
   const tiltVal1 = useTilt();
   const tiltVal2 = useTilt();
   const tiltVal3 = useTilt();
   const tiltTiles = [tilt1, tilt2, tilt3, tilt4];
   const tiltStats = [tiltStat1, tiltStat2, tiltStat3, tiltStat4];
-  const tiltAreas = [tiltArea1, tiltArea2, tiltArea3, tiltArea4];
   const tiltVals = [tiltVal1, tiltVal2, tiltVal3];
 
   const products = [
@@ -439,12 +433,88 @@ export default function YalaModernWebsite() {
 
         /* 3D hero title depth */
         .hero-title-3d {
-          text-shadow:
-            1px 1px 0 rgba(34,197,94,0.3),
-            2px 2px 0 rgba(34,197,94,0.2),
-            3px 3px 0 rgba(34,197,94,0.15),
-            4px 4px 8px rgba(34,197,94,0.1);
+          letter-spacing: -0.055em;
+          text-shadow: 0 18px 42px rgba(15, 118, 110, 0.12);
           transform: perspective(800px) translateZ(0px);
+        }
+
+        .hero-heading-wrap {
+          position: relative;
+          display: inline-block;
+          padding: 0.12em 0.1em 0.2em;
+        }
+
+        .hero-heading-wrap::before {
+          content: '';
+          position: absolute;
+          left: 50%;
+          bottom: 0.06em;
+          width: 94%;
+          height: 0.34em;
+          transform: translateX(-50%);
+          border-radius: 999px;
+          background: linear-gradient(90deg, rgba(187, 247, 208, 0), rgba(134, 239, 172, 0.75), rgba(45, 212, 191, 0.45), rgba(187, 247, 208, 0));
+          filter: blur(1px);
+          z-index: -1;
+        }
+
+        .hero-title-line {
+          display: block;
+          color: #172a1f;
+        }
+
+        .hero-title-accent {
+          display: block;
+          margin-top: 0.02em;
+          padding-bottom: 0.04em;
+          background: linear-gradient(92deg, #16a34a 0%, #059669 42%, #0f766e 78%, #115e59 100%);
+          background-size: 180% 180%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          text-shadow: 0 12px 36px rgba(16, 185, 129, 0.16);
+        }
+
+        .hero-title-accent::selection,
+        .hero-title-line::selection {
+          background: rgba(134, 239, 172, 0.45);
+          color: #064e3b;
+        }
+
+        .hero-title-kicker {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.65rem;
+          margin-bottom: 1.25rem;
+          color: #047857;
+          font-size: 0.78rem;
+          font-weight: 800;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        .hero-title-kicker::before,
+        .hero-title-kicker::after {
+          content: '';
+          width: 2.25rem;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.75));
+        }
+
+        .hero-title-kicker::after {
+          background: linear-gradient(90deg, rgba(16, 185, 129, 0.75), transparent);
+        }
+
+        @media (max-width: 640px) {
+          .hero-title-3d {
+            letter-spacing: -0.035em;
+            text-shadow: 0 12px 28px rgba(15, 118, 110, 0.1);
+          }
+
+          .hero-heading-wrap::before {
+            width: 100%;
+            height: 0.42em;
+          }
         }
 
         /* 3D icon box */
@@ -881,13 +951,11 @@ export default function YalaModernWebsite() {
             </div>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-display font-bold mb-6 leading-tight hero-title-3d">
-            <span className="bg-gradient-to-r from-gray-800 via-green-800 to-emerald-700 bg-clip-text text-transparent">
-              Trusted Medicines,
-            </span>
-            <br />
-            <span className="text-3d-extrude bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent animate-gradient">
-              Healthier Lives
+          <h1 className="text-5xl sm:text-6xl md:text-8xl font-display font-bold mb-7 leading-[0.92] hero-title-3d">
+            <span className="hero-title-kicker">YALA Healthcare</span>
+            <span className="hero-heading-wrap">
+              <span className="hero-title-line">Trusted Medicines,</span>
+              <span className="hero-title-accent animate-gradient">Healthier Lives</span>
             </span>
           </h1>
 
