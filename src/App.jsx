@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 // Modern SVG Icons
 const Flask = ({ className }) => (
@@ -66,24 +66,81 @@ export default function YalaModernWebsite() {
   const [scrolled, setScrolled] = useState(false);
   const [activeProduct, setActiveProduct] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
   const [showContactModal, setShowContactModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const heroRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
+      // Parallax: map mouse to -1..1 range
+      const px = (e.clientX / window.innerWidth - 0.5) * 2;
+      const py = (e.clientY / window.innerHeight - 0.5) * 2;
+      setParallax({ x: px, y: py });
     };
-    
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
-    
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  // Scroll-triggered 3D entrance animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible-3d');
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    document.querySelectorAll('.scroll-3d').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Advanced 3D tilt with moving specular highlight
+  const useTilt = (intensity = 12) => {
+    const ref = useRef(null);
+    const handleMouseMove = useCallback((e) => {
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const rotX = ((y - cy) / cy) * -intensity;
+      const rotY = ((x - cx) / cx) * intensity;
+      // Specular highlight position (percentage)
+      const hx = (x / rect.width) * 100;
+      const hy = (y / rect.height) * 100;
+      el.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(24px) scale(1.025)`;
+      el.style.setProperty('--shine-x', `${hx}%`);
+      el.style.setProperty('--shine-y', `${hy}%`);
+      el.style.boxShadow = `${-rotY * 2.5}px ${rotX * 2}px 50px rgba(34,197,94,0.28), 0 25px 70px rgba(34,197,94,0.12), inset 0 1px 0 rgba(255,255,255,0.5)`;
+      const shine = el.querySelector('.card-shine');
+      if (shine) {
+        shine.style.opacity = '1';
+        shine.style.background = `radial-gradient(circle at ${hx}% ${hy}%, rgba(255,255,255,0.45) 0%, transparent 65%)`;
+      }
+    }, [intensity]);
+    const handleMouseLeave = useCallback(() => {
+      const el = ref.current;
+      if (!el) return;
+      el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)';
+      el.style.boxShadow = '';
+      const shine = el.querySelector('.card-shine');
+      if (shine) shine.style.opacity = '0';
+    }, []);
+    return { ref, onMouseMove: handleMouseMove, onMouseLeave: handleMouseLeave };
+  };
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -101,6 +158,27 @@ export default function YalaModernWebsite() {
   const handleContactClick = () => {
     setShowContactModal(true);
   };
+
+  // 3D tilt instances for cards
+  const tilt1 = useTilt();
+  const tilt2 = useTilt();
+  const tilt3 = useTilt();
+  const tilt4 = useTilt();
+  const tiltStat1 = useTilt();
+  const tiltStat2 = useTilt();
+  const tiltStat3 = useTilt();
+  const tiltStat4 = useTilt();
+  const tiltArea1 = useTilt();
+  const tiltArea2 = useTilt();
+  const tiltArea3 = useTilt();
+  const tiltArea4 = useTilt();
+  const tiltVal1 = useTilt();
+  const tiltVal2 = useTilt();
+  const tiltVal3 = useTilt();
+  const tiltTiles = [tilt1, tilt2, tilt3, tilt4];
+  const tiltStats = [tiltStat1, tiltStat2, tiltStat3, tiltStat4];
+  const tiltAreas = [tiltArea1, tiltArea2, tiltArea3, tiltArea4];
+  const tiltVals = [tiltVal1, tiltVal2, tiltVal3];
 
   const products = [
     { 
@@ -141,9 +219,9 @@ export default function YalaModernWebsite() {
   ];
 
   return (
-    <div className="bg-[#0A0F1C] text-white overflow-hidden">
+    <div className="bg-[#F0FAF4] text-gray-800 overflow-hidden">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..60,300;12..60,400;12..60,500;12..60,600;12..60,700;12..60,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
         * {
           margin: 0;
@@ -152,48 +230,52 @@ export default function YalaModernWebsite() {
         }
 
         body {
-          font-family: 'Inter', sans-serif;
-          background: #0A0F1C;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          background: #F0FAF4;
           overflow-x: hidden;
+          color: #1a2e1a;
+          font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          letter-spacing: -0.01em;
         }
 
         .font-display {
-          font-family: 'Clash Display', sans-serif;
+          font-family: 'Bricolage Grotesque', sans-serif;
+          font-optical-sizing: auto;
+          letter-spacing: -0.03em;
         }
 
-        /* Glassmorphism */
+        /* Glassmorphism - green tinted */
         .glass {
-          background: rgba(255, 255, 255, 0.03);
+          background: rgba(255, 255, 255, 0.55);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(52, 168, 83, 0.2);
         }
 
         .glass-dark {
-          background: rgba(10, 15, 28, 0.7);
+          background: rgba(255, 255, 255, 0.85);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(52, 168, 83, 0.15);
+          box-shadow: 0 4px 32px rgba(34, 139, 34, 0.08);
         }
 
-        /* Modern gradients */
+        /* Modern gradients - green mesh */
         .gradient-mesh {
-          background: 
-            radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 0.3) 0px, transparent 50%),
-            radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 0.2) 0px, transparent 50%),
-            radial-gradient(at 52% 99%, hsla(354, 98%, 61%, 0.2) 0px, transparent 50%),
-            radial-gradient(at 10% 29%, hsla(256, 96%, 67%, 0.3) 0px, transparent 50%),
-            radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 0.2) 0px, transparent 50%),
-            radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 0.3) 0px, transparent 50%),
-            radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 0.2) 0px, transparent 50%);
+          background:
+            radial-gradient(at 27% 37%, hsla(142, 76%, 85%, 0.55) 0px, transparent 50%),
+            radial-gradient(at 97% 21%, hsla(152, 82%, 78%, 0.45) 0px, transparent 50%),
+            radial-gradient(at 52% 99%, hsla(120, 60%, 88%, 0.4) 0px, transparent 50%),
+            radial-gradient(at 10% 29%, hsla(160, 70%, 80%, 0.5) 0px, transparent 50%),
+            radial-gradient(at 97% 96%, hsla(135, 55%, 90%, 0.35) 0px, transparent 50%),
+            radial-gradient(at 33% 50%, hsla(145, 65%, 82%, 0.45) 0px, transparent 50%),
+            radial-gradient(at 79% 53%, hsla(130, 60%, 87%, 0.3) 0px, transparent 50%);
         }
 
         /* Animated gradient */
         @keyframes gradient-xy {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
         }
 
         .animate-gradient {
@@ -203,26 +285,18 @@ export default function YalaModernWebsite() {
 
         /* Floating animation */
         @keyframes float {
-          0%, 100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-20px) rotate(3deg);
-          }
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(3deg); }
         }
 
         .float {
           animation: float 6s ease-in-out infinite;
         }
 
-        /* Pulse glow */
+        /* Pulse glow - green */
         @keyframes pulse-glow {
-          0%, 100% {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-          }
-          50% {
-            box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
-          }
+          0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+          50% { box-shadow: 0 0 45px rgba(34, 197, 94, 0.85); }
         }
 
         .pulse-glow {
@@ -231,20 +305,16 @@ export default function YalaModernWebsite() {
 
         /* Shimmer effect */
         @keyframes shimmer {
-          0% {
-            background-position: -1000px 0;
-          }
-          100% {
-            background-position: 1000px 0;
-          }
+          0% { background-position: -1000px 0; }
+          100% { background-position: 1000px 0; }
         }
 
         .shimmer {
           background: linear-gradient(
             90deg,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.1) 50%,
-            rgba(255, 255, 255, 0) 100%
+            rgba(255,255,255,0) 0%,
+            rgba(255,255,255,0.6) 50%,
+            rgba(255,255,255,0) 100%
           );
           background-size: 1000px 100%;
           animation: shimmer 3s infinite;
@@ -260,77 +330,47 @@ export default function YalaModernWebsite() {
         .modern-card::before {
           content: '';
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, transparent 100%);
           opacity: 0;
           transition: opacity 0.4s;
         }
 
-        .modern-card:hover::before {
-          opacity: 1;
-        }
+        .modern-card:hover::before { opacity: 1; }
+        .modern-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(34,197,94,0.15); }
 
-        .modern-card:hover {
-          transform: translateY(-8px);
-        }
+        html { scroll-behavior: smooth; }
 
-        /* Smooth scroll */
-        html {
-          scroll-behavior: smooth;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: #0A0F1C;
-        }
-
+        /* Custom scrollbar - green */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f0faf4; }
         ::-webkit-scrollbar-thumb {
-          background: linear-gradient(180deg, #3B82F6, #8B5CF6);
+          background: linear-gradient(180deg, #22c55e, #16a34a);
           border-radius: 10px;
         }
 
-        /* Neon text */
+        /* Neon text - green */
         .neon-text {
-          text-shadow: 0 0 10px rgba(59, 130, 246, 0.8),
-                       0 0 20px rgba(59, 130, 246, 0.6),
-                       0 0 30px rgba(59, 130, 246, 0.4);
+          text-shadow: 0 0 10px rgba(34,197,94,0.6),
+                       0 0 20px rgba(34,197,94,0.4),
+                       0 0 35px rgba(34,197,94,0.25);
         }
 
-        /* Grid pattern */
+        /* Grid pattern - subtle green */
         .grid-pattern {
-          background-image: 
-            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+          background-image:
+            linear-gradient(rgba(34,197,94,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34,197,94,0.06) 1px, transparent 1px);
           background-size: 50px 50px;
         }
 
-        /* Spotlight effect */
+        /* Spotlight */
         .spotlight {
           position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
           pointer-events: none;
           z-index: 1;
-        }
-
-        .spotlight::before {
-          content: '';
-          position: absolute;
-          width: 600px;
-          height: 600px;
-          background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
-          border-radius: 50%;
-          filter: blur(40px);
-          transform: translate(-50%, -50%);
         }
 
         /* Bento box layout */
@@ -341,10 +381,7 @@ export default function YalaModernWebsite() {
         }
 
         @media (min-width: 768px) {
-          .bento-grid {
-            grid-template-columns: repeat(12, 1fr);
-          }
-          
+          .bento-grid { grid-template-columns: repeat(12, 1fr); }
           .bento-item-1 { grid-column: span 6; }
           .bento-item-2 { grid-column: span 6; }
           .bento-item-3 { grid-column: span 4; }
@@ -361,38 +398,349 @@ export default function YalaModernWebsite() {
         .modern-btn::after {
           content: '';
           position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 0;
-          height: 0;
-          background: rgba(255, 255, 255, 0.2);
+          top: 50%; left: 50%;
+          width: 0; height: 0;
+          background: rgba(255,255,255,0.25);
           border-radius: 50%;
           transform: translate(-50%, -50%);
           transition: width 0.6s, height 0.6s;
         }
 
-        .modern-btn:hover::after {
-          width: 300px;
-          height: 300px;
-        }
+        .modern-btn:hover::after { width: 300px; height: 300px; }
 
-        /* Particle effect */
         @keyframes particle-float {
-          0% {
-            transform: translateY(0) translateX(0);
-            opacity: 0;
-          }
-          50% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(-100px) translateX(50px);
-            opacity: 0;
-          }
+          0% { transform: translateY(0) translateX(0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateY(-100px) translateX(50px); opacity: 0; }
         }
 
-        .particle {
-          animation: particle-float 4s ease-in-out infinite;
+        .particle { animation: particle-float 4s ease-in-out infinite; }
+
+        /* ===== 3D EFFECTS ===== */
+
+        /* Global 3D context */
+        .scene-3d {
+          perspective: 1200px;
+          transform-style: preserve-3d;
+        }
+
+        /* Smooth 3D transition */
+        .tilt-card {
+          transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+          transform-style: preserve-3d;
+          will-change: transform;
+        }
+
+        /* 3D floating pill badge */
+        .badge-3d {
+          transform: perspective(600px) translateZ(8px);
+          box-shadow: 0 4px 15px rgba(34,197,94,0.2), 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        /* 3D hero title depth */
+        .hero-title-3d {
+          text-shadow:
+            1px 1px 0 rgba(34,197,94,0.3),
+            2px 2px 0 rgba(34,197,94,0.2),
+            3px 3px 0 rgba(34,197,94,0.15),
+            4px 4px 8px rgba(34,197,94,0.1);
+          transform: perspective(800px) translateZ(0px);
+        }
+
+        /* 3D icon box */
+        .icon-3d {
+          transform: perspective(400px) translateZ(12px);
+          box-shadow:
+            0 8px 20px rgba(34,197,94,0.35),
+            0 3px 6px rgba(0,0,0,0.1),
+            inset 0 1px 0 rgba(255,255,255,0.3);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .icon-3d:hover {
+          transform: perspective(400px) translateZ(24px) rotateY(15deg);
+          box-shadow:
+            0 16px 35px rgba(34,197,94,0.45),
+            -6px 8px 20px rgba(34,197,94,0.2);
+        }
+
+        /* 3D nav logo */
+        .logo-3d {
+          transform: perspective(500px) translateZ(6px);
+          box-shadow: 0 6px 18px rgba(34,197,94,0.35), 0 2px 4px rgba(0,0,0,0.08);
+          transition: transform 0.3s ease;
+        }
+        .logo-3d:hover {
+          transform: perspective(500px) translateZ(16px) rotateY(10deg);
+        }
+
+        /* 3D CTA button */
+        .btn-3d {
+          transform: perspective(500px) translateZ(0px);
+          box-shadow:
+            0 6px 20px rgba(34,197,94,0.4),
+            0 3px 6px rgba(0,0,0,0.1),
+            inset 0 1px 0 rgba(255,255,255,0.25);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-3d:hover {
+          transform: perspective(500px) translateZ(14px) translateY(-3px);
+          box-shadow:
+            0 16px 40px rgba(34,197,94,0.5),
+            0 8px 16px rgba(0,0,0,0.12),
+            inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .btn-3d:active {
+          transform: perspective(500px) translateZ(4px) translateY(0px);
+          box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+        }
+
+        /* 3D section card with depth layers */
+        .card-3d-base {
+          position: relative;
+          transform-style: preserve-3d;
+        }
+        .card-3d-base::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 60%);
+          pointer-events: none;
+          z-index: 2;
+        }
+        .card-3d-base::before {
+          content: '';
+          position: absolute;
+          bottom: -6px;
+          left: 4px;
+          right: 4px;
+          height: 100%;
+          background: rgba(34,197,94,0.12);
+          border-radius: inherit;
+          z-index: -1;
+          filter: blur(8px);
+          transform: translateZ(-20px);
+        }
+
+        /* 3D spinning orb for hero decoration */
+        @keyframes orb-rotate {
+          0% { transform: perspective(600px) rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+          100% { transform: perspective(600px) rotateX(360deg) rotateY(180deg) rotateZ(90deg); }
+        }
+
+        .orb-3d {
+          animation: orb-rotate 12s linear infinite;
+          transform-style: preserve-3d;
+        }
+
+        /* 3D layered stat card */
+        .stat-3d {
+          transform-style: preserve-3d;
+          position: relative;
+        }
+        .stat-3d .stat-value {
+          transform: translateZ(30px);
+          display: inline-block;
+        }
+        .stat-3d .stat-icon {
+          transform: translateZ(20px);
+          display: inline-block;
+        }
+
+        /* 3D depth shadow under sections */
+        .section-3d-shadow {
+          box-shadow:
+            0 20px 60px rgba(34,197,94,0.08),
+            0 4px 16px rgba(34,197,94,0.04);
+        }
+
+        /* 3D flip card for therapeutic areas */
+        .flip-container {
+          perspective: 1000px;
+        }
+        .flip-inner {
+          transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+          transform-style: preserve-3d;
+          position: relative;
+        }
+        .flip-container:hover .flip-inner {
+          transform: rotateY(8deg) rotateX(-5deg) translateZ(16px);
+        }
+
+        /* 3D research panel */
+        .research-3d {
+          transform: perspective(1200px) rotateY(-4deg);
+          box-shadow:
+            20px 20px 60px rgba(34,197,94,0.12),
+            -4px -4px 20px rgba(255,255,255,0.8),
+            0 2px 4px rgba(0,0,0,0.04);
+          transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .research-3d:hover {
+          transform: perspective(1200px) rotateY(0deg) translateZ(12px);
+          box-shadow:
+            0 30px 80px rgba(34,197,94,0.18),
+            0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        /* 3D footer logo */
+        .footer-logo-3d {
+          transform: perspective(400px) translateZ(4px);
+          box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+          transition: transform 0.3s;
+        }
+        .footer-logo-3d:hover {
+          transform: perspective(400px) translateZ(12px) rotateY(12deg);
+        }
+
+        /* Ambient 3D light effect on hover */
+        @keyframes ambient-light {
+          0%, 100% { opacity: 0.4; transform: translateX(-20px) translateY(-20px); }
+          50% { opacity: 0.7; transform: translateX(20px) translateY(20px); }
+        }
+        .ambient-light {
+          animation: ambient-light 4s ease-in-out infinite;
+          pointer-events: none;
+        }
+
+        /* ===== ADVANCED 3D ===== */
+
+        /* Moving specular highlight on tilt cards */
+        .card-shine {
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+          z-index: 10;
+          mix-blend-mode: screen;
+        }
+
+        /* Scroll-triggered 3D entrance */
+        .scroll-3d {
+          opacity: 0;
+          transform: perspective(1000px) rotateX(20deg) translateY(60px) scale(0.95);
+          transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .scroll-3d.visible-3d {
+          opacity: 1;
+          transform: perspective(1000px) rotateX(0deg) translateY(0px) scale(1);
+        }
+        .scroll-3d:nth-child(2) { transition-delay: 0.1s; }
+        .scroll-3d:nth-child(3) { transition-delay: 0.2s; }
+        .scroll-3d:nth-child(4) { transition-delay: 0.3s; }
+
+        /* 3D DNA / Helix rotating rings */
+        @keyframes ring-spin-1 {
+          from { transform: perspective(600px) rotateX(60deg) rotateZ(0deg); }
+          to   { transform: perspective(600px) rotateX(60deg) rotateZ(360deg); }
+        }
+        @keyframes ring-spin-2 {
+          from { transform: perspective(600px) rotateX(60deg) rotateZ(120deg); }
+          to   { transform: perspective(600px) rotateX(60deg) rotateZ(480deg); }
+        }
+        @keyframes ring-spin-3 {
+          from { transform: perspective(600px) rotateX(60deg) rotateZ(240deg); }
+          to   { transform: perspective(600px) rotateX(60deg) rotateZ(600deg); }
+        }
+        .ring-1 { animation: ring-spin-1 8s linear infinite; }
+        .ring-2 { animation: ring-spin-2 8s linear infinite; }
+        .ring-3 { animation: ring-spin-3 8s linear infinite; }
+
+        .helix-ring {
+          position: absolute;
+          border-radius: 50%;
+          border: 2px solid;
+          opacity: 0.6;
+          transform-style: preserve-3d;
+        }
+
+        /* 3D floating molecule orb */
+        @keyframes molecule-float {
+          0%, 100% { transform: perspective(800px) translateZ(0px) rotateY(0deg) translateY(0px); }
+          33%       { transform: perspective(800px) translateZ(40px) rotateY(120deg) translateY(-15px); }
+          66%       { transform: perspective(800px) translateZ(20px) rotateY(240deg) translateY(8px); }
+        }
+        .molecule-orb {
+          animation: molecule-float 7s ease-in-out infinite;
+          transform-style: preserve-3d;
+        }
+
+        /* 3D depth parallax layers */
+        .parallax-layer-1 { will-change: transform; transition: transform 0.1s linear; }
+        .parallax-layer-2 { will-change: transform; transition: transform 0.08s linear; }
+        .parallax-layer-3 { will-change: transform; transition: transform 0.05s linear; }
+
+        /* 3D pill / capsule */
+        @keyframes pill-spin {
+          0%   { transform: perspective(600px) rotateX(15deg) rotateY(0deg) rotateZ(10deg); }
+          50%  { transform: perspective(600px) rotateX(-10deg) rotateY(180deg) rotateZ(-5deg); }
+          100% { transform: perspective(600px) rotateX(15deg) rotateY(360deg) rotateZ(10deg); }
+        }
+        .pill-3d {
+          animation: pill-spin 10s ease-in-out infinite;
+          transform-style: preserve-3d;
+          border-radius: 50px;
+          background: linear-gradient(135deg, rgba(34,197,94,0.9) 0%, rgba(16,185,129,0.7) 50%, rgba(5,150,105,0.9) 100%);
+          box-shadow:
+            0 0 30px rgba(34,197,94,0.5),
+            inset 0 2px 8px rgba(255,255,255,0.4),
+            inset 0 -2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 3D cube decoration */
+        @keyframes cube-rotate {
+          0%   { transform: perspective(500px) rotateX(0deg)  rotateY(0deg)  rotateZ(0deg); }
+          100% { transform: perspective(500px) rotateX(360deg) rotateY(720deg) rotateZ(180deg); }
+        }
+        .cube-3d {
+          animation: cube-rotate 15s linear infinite;
+          transform-style: preserve-3d;
+        }
+
+        /* 3D grid floor effect */
+        .grid-3d-floor {
+          background-image:
+            linear-gradient(rgba(34,197,94,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34,197,94,0.1) 1px, transparent 1px);
+          background-size: 40px 40px;
+          transform: perspective(600px) rotateX(55deg) scale(2.5);
+          transform-origin: center bottom;
+          mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 60%, transparent 100%);
+        }
+
+        /* Glassmorphism depth border gradient */
+        .glass-depth {
+          border: 1px solid transparent;
+          background:
+            linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)) padding-box,
+            linear-gradient(135deg, rgba(34,197,94,0.5) 0%, rgba(16,185,129,0.2) 50%, rgba(52,211,153,0.5) 100%) border-box;
+          box-shadow:
+            0 8px 32px rgba(34,197,94,0.1),
+            0 2px 8px rgba(0,0,0,0.04),
+            inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        /* 3D neon text with extrusion layers */
+        .text-3d-extrude {
+          text-shadow:
+            0 1px 0 #bbf7d0,
+            0 2px 0 #86efac,
+            0 3px 0 #4ade80,
+            0 4px 0 #22c55e,
+            0 5px 0 #16a34a,
+            0 6px 1px rgba(0,0,0,0.08),
+            0 8px 6px rgba(34,197,94,0.2),
+            0 12px 20px rgba(34,197,94,0.15),
+            0 20px 40px rgba(34,197,94,0.08);
+        }
+
+        /* Input focus green */
+        input:focus, textarea:focus {
+          border-color: #22c55e !important;
+          box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
         }
       `}</style>
 
@@ -414,22 +762,22 @@ export default function YalaModernWebsite() {
       </div>
 
       {/* Navigation */}
-      <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'glass-dark py-4' : 'py-6'}`}>
+      <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'glass-dark shadow-lg shadow-green-100/50 py-4' : 'py-6'}`}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur-lg opacity-50"></div>
-                <div className="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-lg opacity-50"></div>
+                <div className="relative w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center logo-3d">
                   <Flask className="w-7 h-7 text-white" />
                 </div>
               </div>
               <div>
-                <div className="text-2xl font-display font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                <div className="text-2xl font-display font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
                   YALA
                 </div>
-                <div className="text-xs text-gray-400 -mt-1">Healthcare</div>
+                <div className="text-xs text-green-500 font-medium -mt-1">Healthcare</div>
               </div>
             </div>
 
@@ -439,15 +787,15 @@ export default function YalaModernWebsite() {
                 <button
                   key={item}
                   onClick={() => scrollToSection(item.toLowerCase())}
-                  className="text-gray-300 hover:text-white transition-colors relative group"
+                  className="text-gray-600 hover:text-green-700 transition-colors relative group font-medium"
                 >
                   {item}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-green-500 to-emerald-500 group-hover:w-full transition-all duration-300"></span>
                 </button>
               ))}
               <button 
                 onClick={handleContactClick}
-                className="modern-btn px-6 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full font-medium hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                className="modern-btn px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-green-400/50 transition-all btn-3d"
               >
                 Contact Us
               </button>
@@ -476,7 +824,7 @@ export default function YalaModernWebsite() {
               ))}
               <button 
                 onClick={handleContactClick}
-                className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full font-medium"
+                className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-semibold"
               >
                 Contact Us
               </button>
@@ -486,65 +834,98 @@ export default function YalaModernWebsite() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden gradient-mesh grid-pattern">
-        {/* Animated circles */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl float" style={{ animationDelay: '0s' }}></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl float" style={{ animationDelay: '4s' }}></div>
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden gradient-mesh grid-pattern">
+        {/* 3D Parallax background blobs — each layer moves at a different depth speed */}
+        <div className="parallax-layer-1 absolute top-20 left-10 w-72 h-72 bg-green-400/30 rounded-full blur-3xl float"
+          style={{ transform: `translate(${parallax.x * -25}px, ${parallax.y * -25}px)`, animationDelay: '0s' }}></div>
+        <div className="parallax-layer-2 absolute bottom-20 right-10 w-96 h-96 bg-emerald-400/25 rounded-full blur-3xl float"
+          style={{ transform: `translate(${parallax.x * 40}px, ${parallax.y * 40}px)`, animationDelay: '2s' }}></div>
+        <div className="parallax-layer-3 absolute top-1/2 left-1/3 w-64 h-64 bg-teal-400/20 rounded-full blur-3xl float"
+          style={{ transform: `translate(${parallax.x * -15}px, ${parallax.y * -15}px)`, animationDelay: '4s' }}></div>
+
+        {/* 3D DNA Helix rings — top-right corner decoration */}
+        <div className="absolute top-16 right-16 w-40 h-40 hidden md:block" style={{ perspective: '600px' }}>
+          <div className="relative w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
+            <div className="helix-ring ring-1" style={{ width: '100%', height: '100%', borderColor: 'rgba(34,197,94,0.5)' }}></div>
+            <div className="helix-ring ring-2" style={{ width: '75%', height: '75%', top: '12.5%', left: '12.5%', borderColor: 'rgba(16,185,129,0.4)' }}></div>
+            <div className="helix-ring ring-3" style={{ width: '50%', height: '50%', top: '25%', left: '25%', borderColor: 'rgba(52,211,153,0.6)' }}></div>
+          </div>
+        </div>
+
+        {/* 3D Floating Pill — left side decoration */}
+        <div className="parallax-layer-2 absolute left-12 top-1/3 hidden lg:block"
+          style={{ transform: `translate(${parallax.x * 30}px, ${parallax.y * 20}px)` }}>
+          <div className="pill-3d w-8 h-20 opacity-80"></div>
+        </div>
+
+        {/* 3D Rotating Cube — bottom-left decoration */}
+        <div className="parallax-layer-1 absolute bottom-24 left-24 hidden lg:block"
+          style={{ transform: `translate(${parallax.x * -20}px, ${parallax.y * -10}px)` }}>
+          <div className="cube-3d w-10 h-10 rounded-lg border-2 border-green-400/60 bg-gradient-to-br from-green-300/30 to-emerald-400/20 backdrop-blur-sm"></div>
+        </div>
+
+        {/* Molecule orb — floating between content layers */}
+        <div className="parallax-layer-3 absolute right-24 bottom-32 hidden lg:block"
+          style={{ transform: `translate(${parallax.x * 55}px, ${parallax.y * 35}px)` }}>
+          <div className="molecule-orb w-14 h-14 rounded-full bg-gradient-to-br from-emerald-400/70 to-teal-500/60"
+            style={{ boxShadow: '0 0 30px rgba(34,197,94,0.5), inset 0 2px 6px rgba(255,255,255,0.4)' }}></div>
+        </div>
 
         <div className="relative max-w-7xl mx-auto px-6 py-32 text-center">
           <div className="inline-block mb-6">
-            <div className="glass px-6 py-2 rounded-full text-sm font-medium flex items-center space-x-2">
-              <Star className="w-4 h-4 text-yellow-400" />
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              <div className="glass px-6 py-2 rounded-full text-sm font-medium flex items-center space-x-2 border border-green-200 badge-3d">
+              <Star className="w-4 h-4 text-yellow-500" />
+              <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent font-semibold">
                 Caring for Healthy Life
               </span>
             </div>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-display font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent">
+          <h1 className="text-6xl md:text-8xl font-display font-bold mb-6 leading-tight hero-title-3d">
+            <span className="bg-gradient-to-r from-gray-800 via-green-800 to-emerald-700 bg-clip-text text-transparent">
               The Future of
             </span>
             <br />
-            <span className="neon-text bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent animate-gradient">
+            <span className="text-3d-extrude bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent animate-gradient">
               Healthcare
             </span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
             Revolutionary pharmaceutical solutions powered by cutting-edge research and 25+ years of excellence
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button 
               onClick={() => scrollToSection('products')}
-              className="modern-btn group px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full font-semibold text-lg flex items-center space-x-2 hover:shadow-2xl hover:shadow-blue-500/50 transition-all"
+              className="modern-btn group px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-semibold text-lg flex items-center space-x-2 hover:shadow-2xl hover:shadow-green-400/50 transition-all btn-3d"
             >
               <span>Explore Products</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
               onClick={() => scrollToSection('solutions')}
-              className="modern-btn px-8 py-4 glass rounded-full font-semibold text-lg hover:bg-white/10 transition-all"
+              className="modern-btn px-8 py-4 bg-white/50 border border-green-200 text-green-700 rounded-full font-semibold text-lg hover:bg-green-50 transition-all"
             >
               Watch Demo
             </button>
           </div>
 
-          {/* Floating stats */}
+          {/* Floating stats with specular card-shine */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20 max-w-4xl mx-auto">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="glass-dark rounded-2xl p-6 modern-card"
+                className={`glass-depth rounded-2xl p-6 tilt-card card-3d-base stat-3d scene-3d scroll-3d relative`}
+                {...tiltStats[index]}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="text-4xl mb-2">{stat.icon}</div>
-                <div className="text-3xl font-display font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                <div className="card-shine rounded-2xl"></div>
+                <div className="text-4xl mb-2 stat-icon">{stat.icon}</div>
+                <div className="text-3xl font-display font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent stat-value">
                   {stat.value}
                 </div>
-                <div className="text-sm text-gray-400 mt-1">{stat.label}</div>
+                <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -552,23 +933,25 @@ export default function YalaModernWebsite() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-          <div className="w-6 h-10 border-2 border-gray-600 rounded-full p-1">
-            <div className="w-1 h-3 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full mx-auto animate-bounce"></div>
+          <div className="w-6 h-10 border-2 border-green-400/60 rounded-full p-1">
+            <div className="w-1 h-3 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full mx-auto animate-bounce"></div>
           </div>
         </div>
       </section>
 
+
+
       {/* Products Section - Bento Grid */}
-      <section id="products" className="py-32 relative">
+      <section id="products" className="py-32 relative bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
             <div className="inline-block glass px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
                 Our Portfolio
               </span>
             </div>
             <h2 className="text-5xl md:text-6xl font-display font-bold mb-6">
-              <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Innovative Solutions
               </span>
             </h2>
@@ -581,16 +964,17 @@ export default function YalaModernWebsite() {
             {products.map((product, index) => (
               <div
                 key={index}
-                className={`bento-item-${(index % 4) + 1} modern-card glass-dark rounded-3xl p-8 relative overflow-hidden group cursor-pointer`}
-                onMouseEnter={() => setActiveProduct(index)}
+                className={`bento-item-${(index % 4) + 1} tilt-card card-3d-base modern-card glass-dark rounded-3xl p-8 relative overflow-hidden group cursor-pointer scroll-3d`}
+                {...tiltTiles[index]}
               >
+                <div className="card-shine rounded-3xl"></div>
                 {/* Gradient overlay */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
                 
                 {/* Content */}
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-6">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${product.color} flex items-center justify-center pulse-glow`}>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${product.color} flex items-center justify-center icon-3d`}>
                       <Flask className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-xs px-3 py-1 glass rounded-full">{product.category}</span>
@@ -602,7 +986,7 @@ export default function YalaModernWebsite() {
                   <div className="space-y-2 mb-6">
                     {product.features.map((feature, idx) => (
                       <div key={idx} className="flex items-center space-x-2 text-sm">
-                        <Check className="w-4 h-4 text-cyan-400" />
+                        <Check className="w-4 h-4 text-green-500" />
                         <span className="text-gray-300">{feature}</span>
                       </div>
                     ))}
@@ -627,17 +1011,17 @@ export default function YalaModernWebsite() {
 
       {/* Therapeutic Areas */}
       <section id="solutions" className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/5 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-500/5 to-transparent"></div>
         
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="text-center mb-20">
             <div className="inline-block glass px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
                 Therapeutic Solutions
               </span>
             </div>
             <h2 className="text-5xl md:text-6xl font-display font-bold mb-6">
-              <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Therapeutic Excellence
               </span>
             </h2>
@@ -655,14 +1039,16 @@ export default function YalaModernWebsite() {
             ].map((area, index) => (
               <div
                 key={index}
-                className="modern-card glass-dark rounded-3xl p-8 text-center group hover:scale-105 transition-transform cursor-pointer"
+                className="modern-card flip-container glass-dark rounded-3xl p-8 text-center group hover:scale-105 transition-transform cursor-pointer"
                 onClick={() => scrollToSection('products')}
               >
-                <div className={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${area.color} flex items-center justify-center pulse-glow`}>
-                  {area.icon}
+                <div className="flip-inner">
+                  <div className={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${area.color} flex items-center justify-center pulse-glow`}>
+                    {area.icon}
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">{area.title}</h3>
+                  <p className="text-gray-500 text-sm">{area.desc}</p>
                 </div>
-                <h3 className="text-2xl font-bold mb-2">{area.title}</h3>
-                <p className="text-gray-400 text-sm">{area.desc}</p>
               </div>
             ))}
           </div>
@@ -675,13 +1061,13 @@ export default function YalaModernWebsite() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <div className="inline-block glass px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  Innovation & Research
+                <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
+                Innovation & Research
                 </span>
               </div>
               <h2 className="text-5xl font-display font-bold mb-6">
-                <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                  Advancing Medical Science
+                <span className="bg-gradient-to-r from-green-800 to-emerald-600 bg-clip-text text-transparent">
+                Advancing Medical Science
                 </span>
               </h2>
               <p className="text-xl text-gray-400 mb-8">
@@ -695,7 +1081,7 @@ export default function YalaModernWebsite() {
                   { title: "$2.5B+ Investment", desc: "Annual R&D commitment" }
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start space-x-4 glass-dark rounded-2xl p-4">
-                    <Check className="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1" />
+                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
                     <div>
                       <h4 className="font-bold text-lg">{item.title}</h4>
                       <p className="text-gray-400 text-sm">{item.desc}</p>
@@ -706,7 +1092,7 @@ export default function YalaModernWebsite() {
 
               <button 
                 onClick={handleContactClick}
-                className="modern-btn px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all flex items-center space-x-2"
+                className="modern-btn px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-green-400/50 transition-all flex items-center space-x-2 btn-3d"
               >
                 <span>Explore Research</span>
                 <ArrowRight className="w-5 h-5" />
@@ -714,24 +1100,24 @@ export default function YalaModernWebsite() {
             </div>
 
             <div className="relative">
-              <div className="glass-dark rounded-3xl p-12 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20"></div>
+              <div className="glass-dark rounded-3xl p-12 relative overflow-hidden research-3d">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-emerald-500/20"></div>
                 <div className="relative z-10">
                   <div className="grid grid-cols-2 gap-6">
                     <div className="glass rounded-2xl p-6 text-center">
-                      <div className="text-4xl font-display font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+                      <div className="text-4xl font-display font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent mb-2">
                         350+
                       </div>
                       <div className="text-sm text-gray-400">Scientists</div>
                     </div>
                     <div className="glass rounded-2xl p-6 text-center">
-                      <div className="text-4xl font-display font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                      <div className="text-4xl font-display font-bold bg-gradient-to-r from-teal-600 to-green-500 bg-clip-text text-transparent mb-2">
                         45+
                       </div>
                       <div className="text-sm text-gray-400">Patents</div>
                     </div>
                     <div className="glass rounded-2xl p-6 text-center col-span-2">
-                      <div className="text-4xl font-display font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
+                      <div className="text-4xl font-display font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent mb-2">
                         15+
                       </div>
                       <div className="text-sm text-gray-400">Novel Therapies in Pipeline</div>
@@ -745,18 +1131,18 @@ export default function YalaModernWebsite() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/5 to-transparent"></div>
+      <section id="about" className="py-32 relative overflow-hidden bg-[#f8fffe]">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-500/5 to-transparent"></div>
         
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="text-center mb-20">
             <div className="inline-block glass px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
                 About YALA
               </span>
             </div>
             <h2 className="text-5xl md:text-6xl font-display font-bold mb-6">
-              <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Our Mission & Values
               </span>
             </h2>
@@ -788,7 +1174,8 @@ export default function YalaModernWebsite() {
             ].map((value, index) => (
               <div
                 key={index}
-                className="modern-card glass-dark rounded-3xl p-8 relative overflow-hidden group"
+                className="modern-card tilt-card card-3d-base glass-dark rounded-3xl p-8 relative overflow-hidden group"
+                {...tiltVals[index]}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${value.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
                 <div className="relative z-10">
@@ -803,7 +1190,7 @@ export default function YalaModernWebsite() {
           <div className="mt-16 text-center">
             <button 
               onClick={handleContactClick}
-              className="modern-btn px-10 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-blue-500/50 transition-all"
+              className="modern-btn px-10 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-green-400/50 transition-all btn-3d"
             >
               Join Our Mission
             </button>
@@ -849,7 +1236,7 @@ export default function YalaModernWebsite() {
       <section className="py-32 relative">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <div className="glass-dark rounded-3xl p-16 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 animate-gradient"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-emerald-500/25 animate-gradient"></div>
             
             <div className="relative z-10">
               <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
@@ -862,13 +1249,13 @@ export default function YalaModernWebsite() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
                   onClick={() => scrollToSection('products')}
-                  className="modern-btn px-10 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-blue-500/50"
+                  className="modern-btn px-10 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-green-400/50 btn-3d"
                 >
                   Get Started
                 </button>
                 <button 
                   onClick={handleContactClick}
-                  className="modern-btn px-10 py-4 glass rounded-full font-semibold text-lg"
+                  className="modern-btn px-10 py-4 glass border border-green-200 text-green-700 rounded-full font-semibold text-lg"
                 >
                   Contact Sales
                 </button>
@@ -879,12 +1266,12 @@ export default function YalaModernWebsite() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-12">
+      <footer className="border-t border-green-100 bg-white py-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center footer-logo-3d">
                   <Flask className="w-6 h-6" />
                 </div>
                 <span className="text-xl font-display font-bold">YALA</span>
@@ -906,7 +1293,7 @@ export default function YalaModernWebsite() {
             ))}
           </div>
 
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+          <div className="border-t border-green-100 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
             <p>© 2026 YALA Healthcare. All rights reserved.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <button className="hover:text-white transition-colors">Privacy</button>
@@ -938,7 +1325,7 @@ export default function YalaModernWebsite() {
                 <input 
                   type="text" 
                   required
-                  className="w-full px-4 py-3 glass rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5"
+                  className="w-full px-4 py-3 bg-white border border-green-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
                   placeholder="John Doe"
                 />
               </div>
@@ -948,7 +1335,7 @@ export default function YalaModernWebsite() {
                 <input 
                   type="email" 
                   required
-                  className="w-full px-4 py-3 glass rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5"
+                  className="w-full px-4 py-3 bg-white border border-green-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
                   placeholder="john@example.com"
                 />
               </div>
@@ -957,7 +1344,7 @@ export default function YalaModernWebsite() {
                 <label className="block text-sm font-medium mb-2">Phone Number</label>
                 <input 
                   type="tel" 
-                  className="w-full px-4 py-3 glass rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5"
+                  className="w-full px-4 py-3 bg-white border border-green-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
                   placeholder="+1 (555) 000-0000"
                 />
               </div>
@@ -967,14 +1354,14 @@ export default function YalaModernWebsite() {
                 <textarea 
                   rows="4"
                   required
-                  className="w-full px-4 py-3 glass rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 resize-none"
+                  className="w-full px-4 py-3 bg-white border border-green-200 text-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
                   placeholder="Tell us about your inquiry..."
                 ></textarea>
               </div>
 
               <button 
                 type="submit"
-                className="modern-btn w-full py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                className="modern-btn w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-green-400/50 transition-all"
               >
                 Send Message
               </button>
@@ -1035,7 +1422,7 @@ export default function YalaModernWebsite() {
             <div className="flex gap-4">
               <button 
                 onClick={handleContactClick}
-                className="modern-btn flex-1 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                className="modern-btn flex-1 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-green-400/50 transition-all"
               >
                 Request Information
               </button>
