@@ -221,7 +221,7 @@ export default function YalaModernWebsite() {
   return (
     <div className="bg-[#F0FAF4] text-gray-800 overflow-hidden">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..60,300;12..60,400;12..60,500;12..60,600;12..60,700;12..60,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap');
         
         * {
           margin: 0;
@@ -230,20 +230,20 @@ export default function YalaModernWebsite() {
         }
 
         body {
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: 'DM Sans', sans-serif;
           background: #F0FAF4;
           overflow-x: hidden;
           color: #1a2e1a;
-          font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
-          letter-spacing: -0.01em;
+          font-size: 16px;
+          line-height: 1.6;
         }
 
         .font-display {
-          font-family: 'Bricolage Grotesque', sans-serif;
-          font-optical-sizing: auto;
-          letter-spacing: -0.03em;
+          font-family: 'Space Grotesk', sans-serif;
+          letter-spacing: -0.02em;
+          font-weight: 700;
         }
 
         /* Glassmorphism - green tinted */
@@ -876,23 +876,23 @@ export default function YalaModernWebsite() {
               <div className="glass px-6 py-2 rounded-full text-sm font-medium flex items-center space-x-2 border border-green-200 badge-3d">
               <Star className="w-4 h-4 text-yellow-500" />
               <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent font-semibold">
-                Caring for Healthy Life
+                ISO Certified · Trusted by 500+ Doctors
               </span>
             </div>
           </div>
 
           <h1 className="text-6xl md:text-8xl font-display font-bold mb-6 leading-tight hero-title-3d">
             <span className="bg-gradient-to-r from-gray-800 via-green-800 to-emerald-700 bg-clip-text text-transparent">
-              The Future of
+              Trusted Medicines,
             </span>
             <br />
             <span className="text-3d-extrude bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent animate-gradient">
-              Healthcare
+              Healthier Lives
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Revolutionary pharmaceutical solutions powered by cutting-edge research and 25+ years of excellence
+            YALA Healthcare delivers clinically proven, doctor-recommended pharmaceutical solutions — backed by 25+ years of research excellence and trusted by millions.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
