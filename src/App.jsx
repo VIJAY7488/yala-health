@@ -1,4 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import yalaLogo from './assets/Yala_Healthcare_logo.jpg';
+import yaladinImg from './assets/Yaladin.png';
+import yalanormMvImg from './assets/Yalanorm_MV.png';
+import yalaProImg from './assets/Yala_Pro.png';
+import yalafloDImg from './assets/Yalaflo_D.png';
+import yalamolSpImg from './assets/Yalamol_SP.png';
+import oxezaOImg from './assets/Oxeza_O.png';
+import zoleyoDsrImg from './assets/Zoleyo_DSR.png';
+import montYalaLImg from './assets/MontYala_L.png';
+import zoleyoLImg from './assets/Zoleyo_L.png';
+import yalafolBImg from './assets/Yalafol_B.png';
+import wrinkoSrImg from './assets/Wrinko_Sr.png';
+import wrinkoJrImg from './assets/Wrinko_Jr.png';
+import yaladen4Img from './assets/Yaladen_4.png';
+import yalamolImg from './assets/Yalamol.png';
+import calayaMImg from './assets/Calaya_M.png';
 
 // Modern SVG Icons
 const Flask = ({ className }) => (
@@ -180,36 +196,128 @@ export default function YalaModernWebsite() {
       category: "Bone Health",
       description: "Complete calcium supplement with Vitamin D3, Methylcobalamin, Folic Acid & Zinc",
       features: ["Stronger Bones", "Better Absorption", "Enhanced Vitality"],
-      color: "from-blue-400 to-cyan-400"
+      color: "from-blue-400 to-cyan-400",
+      image: calayaMImg
     },
     { 
-      name: "Doxy-Yolin", 
+      name: "Yaladin", 
+      category: "Digestive Care",
+      description: "YALA Healthcare formulation designed for everyday therapeutic support",
+      features: ["Trusted Formula", "Quality Assured", "Doctor Recommended"],
+      color: "from-emerald-400 to-teal-400",
+      image: yaladinImg
+    },
+    { 
+      name: "Yalanorm-MV", 
       category: "Women's Health",
-      description: "Trusted anti-emetic solution for pregnancy wellness",
-      features: ["Safe for Baby", "Reduces Nausea", "Folic Acid Enriched"],
-      color: "from-pink-400 to-rose-400"
+      description: "Specialized wellness support with a balanced healthcare profile",
+      features: ["Daily Support", "Balanced Care", "Patient Focused"],
+      color: "from-pink-400 to-rose-400",
+      image: yalanormMvImg
     },
     { 
-      name: "Lozigo Plus", 
-      category: "Mental Wellness",
-      description: "Advanced combination therapy for depression & anxiety",
-      features: ["Fast Relief", "Dual Action", "Clinically Proven"],
-      color: "from-purple-400 to-indigo-400"
+      name: "Yala Pro", 
+      category: "Digestive Wellness",
+      description: "Probiotic wellness product for better digestive balance",
+      features: ["Gut Support", "Balanced Flora", "Daily Wellness"],
+      color: "from-cyan-400 to-blue-400",
+      image: yalaProImg
     },
     { 
-      name: "Lozigo", 
-      category: "Sleep Support",
-      description: "Effective anxiolytic for peaceful sleep",
-      features: ["Quick Action", "Restful Sleep", "Minimal Side Effects"],
-      color: "from-indigo-400 to-blue-400"
+      name: "Yalaflo-D", 
+      category: "Respiratory Care",
+      description: "Therapeutic care product for respiratory health support",
+      features: ["Breathing Support", "Fast Relief", "Trusted Care"],
+      color: "from-sky-400 to-cyan-400",
+      image: yalafloDImg
+    },
+    { 
+      name: "Yalamol-SP", 
+      category: "Pain Relief",
+      description: "Pain and inflammation support for active recovery",
+      features: ["Pain Support", "Inflammation Care", "Recovery Focused"],
+      color: "from-orange-400 to-red-400",
+      image: yalamolSpImg
+    },
+    { 
+      name: "Oxeza-O", 
+      category: "Antibiotic Care",
+      description: "Quality antimicrobial product for prescribed care",
+      features: ["Prescription Care", "Quality Tested", "Reliable Support"],
+      color: "from-violet-400 to-indigo-400",
+      image: oxezaOImg
+    },
+    { 
+      name: "Zoleyo-DSR", 
+      category: "Gastro Care",
+      description: "Gastrointestinal support with delayed-release care",
+      features: ["Acidity Support", "Digestive Care", "Sustained Relief"],
+      color: "from-lime-400 to-green-400",
+      image: zoleyoDsrImg
+    },
+    { 
+      name: "MontYala-L", 
+      category: "Allergy Care",
+      description: "Allergy and respiratory wellness support",
+      features: ["Allergy Support", "Respiratory Care", "Daily Relief"],
+      color: "from-teal-400 to-emerald-400",
+      image: montYalaLImg
+    },
+    { 
+      name: "Zoleyo-L", 
+      category: "Gastro Care",
+      description: "Gastro care formulation for everyday prescribed support",
+      features: ["Digestive Balance", "Quality Formula", "Patient Support"],
+      color: "from-green-400 to-lime-400",
+      image: zoleyoLImg
+    },
+    { 
+      name: "Yalafol-B", 
+      category: "Nutrition Support",
+      description: "Nutritional supplement support for wellness needs",
+      features: ["Vitamin Support", "Better Vitality", "Daily Nutrition"],
+      color: "from-yellow-400 to-amber-400",
+      image: yalafolBImg
+    },
+    { 
+      name: "Wrinko-SR", 
+      category: "Wellness Care",
+      description: "Sustained-release product for consistent therapeutic care",
+      features: ["Sustained Release", "Stable Support", "Quality Care"],
+      color: "from-purple-400 to-fuchsia-400",
+      image: wrinkoSrImg
+    },
+    { 
+      name: "Wrinko-JR", 
+      category: "Pediatric Care",
+      description: "Child-focused wellness product from the YALA portfolio",
+      features: ["Junior Care", "Gentle Support", "Trusted Quality"],
+      color: "from-fuchsia-400 to-pink-400",
+      image: wrinkoJrImg
+    },
+    { 
+      name: "Yaladen-4", 
+      category: "Therapeutic Care",
+      description: "Targeted therapeutic formulation for prescribed use",
+      features: ["Targeted Care", "Reliable Formula", "Doctor Guided"],
+      color: "from-indigo-400 to-blue-400",
+      image: yaladen4Img
+    },
+    { 
+      name: "Yalamol", 
+      category: "Pain & Fever",
+      description: "Reliable support for pain and fever management",
+      features: ["Fever Support", "Pain Relief", "Everyday Care"],
+      color: "from-red-400 to-orange-400",
+      image: yalamolImg
     },
   ];
 
   const stats = [
-    { value: "25+", label: "Years Excellence", icon: "🏆" },
+    { value: "5+", label: "Years Excellence", icon: "🏆" },
     { value: "100+", label: "Countries", icon: "🌍" },
-    { value: "33M+", label: "Lives Touched", icon: "❤️" },
-    { value: "500+", label: "Experts", icon: "👨‍⚕️" }
+    { value: "1M", label: "Lives Touched", icon: "❤️" },
+    { value: "1500+", label: "Experts", icon: "👨‍⚕️" }
   ];
 
   return (
@@ -836,18 +944,12 @@ export default function YalaModernWebsite() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-lg opacity-50"></div>
-                <div className="relative w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center logo-3d">
-                  <Flask className="w-7 h-7 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-lg opacity-45"></div>
+                <div className="relative w-32 h-20 bg-white rounded-2xl flex items-center justify-center logo-3d overflow-hidden ring-2 ring-green-200 shadow-xl shadow-green-200/50">
+                  <img src={yalaLogo} alt="YALA Healthcare logo" className="w-full h-full object-cover" />
                 </div>
-              </div>
-              <div>
-                <div className="text-2xl font-display font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
-                  YALA
-                </div>
-                <div className="text-xs text-green-500 font-medium -mt-1">Healthcare</div>
               </div>
             </div>
 
@@ -1028,41 +1130,49 @@ export default function YalaModernWebsite() {
             </p>
           </div>
 
-          <div className="bento-grid">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {products.map((product, index) => (
               <div
                 key={index}
-                className={`bento-item-${(index % 4) + 1} tilt-card card-3d-base modern-card glass-dark rounded-3xl p-8 relative overflow-hidden group cursor-pointer scroll-3d`}
-                {...tiltTiles[index]}
+                className="tilt-card card-3d-base modern-card rounded-3xl min-h-[390px] relative overflow-hidden group cursor-pointer scroll-3d bg-white border border-green-100 shadow-[0_20px_70px_rgba(16,185,129,0.12)]"
+                {...(tiltTiles[index] || {})}
               >
                 <div className="card-shine rounded-3xl"></div>
+                <div className={`absolute -inset-16 bg-gradient-to-br ${product.color} opacity-20 blur-3xl group-hover:opacity-35 transition-opacity duration-700`}></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.98),rgba(240,253,244,0.78)_42%,rgba(220,252,231,0.48)_100%)]"></div>
+                <img
+                  src={product.image}
+                  alt={`${product.name} product packaging`}
+                  className="absolute inset-0 w-full h-full object-contain p-3 opacity-100 group-hover:opacity-45 group-focus-within:opacity-45 group-hover:scale-105 group-hover:-translate-y-8 transition-all duration-700 pointer-events-none drop-shadow-2xl"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/55 to-transparent opacity-0 group-hover:opacity-95 group-focus-within:opacity-95 transition-opacity duration-500"></div>
                 {/* Gradient overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+                <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-0 group-hover:opacity-10 group-focus-within:opacity-10 transition-opacity duration-500`}></div>
                 
                 {/* Content */}
-                <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${product.color} flex items-center justify-center icon-3d`}>
-                      <Flask className="w-7 h-7 text-white" />
+                <div className="absolute inset-x-4 bottom-4 z-10 rounded-2xl border border-white/70 bg-white/88 backdrop-blur-xl p-5 shadow-[0_18px_50px_rgba(15,118,110,0.16)] opacity-0 translate-y-8 group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0 transition-all duration-500">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${product.color} flex items-center justify-center icon-3d shrink-0`}>
+                      <Flask className="w-6 h-6 text-white" />
                     </div>
-                    <span className="text-xs px-3 py-1 glass rounded-full">{product.category}</span>
+                    <span className="text-[11px] px-3 py-1 bg-green-50 text-green-700 border border-green-100 rounded-full font-semibold">{product.category}</span>
                   </div>
 
-                  <h3 className="text-3xl font-display font-bold mb-3">{product.name}</h3>
-                  <p className="text-gray-400 mb-6">{product.description}</p>
+                  <h3 className="text-2xl font-display font-bold mb-2 text-gray-900">{product.name}</h3>
+                  <p className="text-gray-500 mb-4 text-sm leading-relaxed">{product.description}</p>
 
-                  <div className="space-y-2 mb-6">
+                  <div className="space-y-2 mb-5">
                     {product.features.map((feature, idx) => (
                       <div key={idx} className="flex items-center space-x-2 text-sm">
                         <Check className="w-4 h-4 text-green-500" />
-                        <span className="text-gray-300">{feature}</span>
+                        <span className="text-gray-600">{feature}</span>
                       </div>
                     ))}
                   </div>
 
                   <button 
                     onClick={() => handleProductClick(product)}
-                    className="modern-btn w-full py-3 glass rounded-xl font-medium group-hover:bg-white/10 transition-all flex items-center justify-center space-x-2"
+                    className="modern-btn w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold shadow-lg shadow-green-200 transition-all flex items-center justify-center space-x-2"
                   >
                     <span>Learn More</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -1070,7 +1180,7 @@ export default function YalaModernWebsite() {
                 </div>
 
                 {/* Decorative element */}
-                <div className={`absolute -bottom-10 -right-10 w-40 h-40 bg-gradient-to-br ${product.color} rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity`}></div>
+                <div className={`absolute -bottom-10 -right-10 w-40 h-40 bg-gradient-to-br ${product.color} rounded-full blur-3xl opacity-20 group-hover:opacity-35 transition-opacity`}></div>
               </div>
             ))}
           </div>
@@ -1146,7 +1256,7 @@ export default function YalaModernWebsite() {
                 {[
                   { title: "200+ Clinical Trials", desc: "Active research across therapeutic areas" },
                   { title: "50+ Partnerships", desc: "Global research institutions" },
-                  { title: "$2.5B+ Investment", desc: "Annual R&D commitment" }
+                  { title: "10M+ Investment", desc: "Annual R&D commitment" }
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start space-x-4 glass-dark rounded-2xl p-4">
                     <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
@@ -1338,11 +1448,10 @@ export default function YalaModernWebsite() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center footer-logo-3d">
-                  <Flask className="w-6 h-6" />
+              <div className="flex items-center mb-4">
+                <div className="w-32 h-20 bg-white rounded-xl flex items-center justify-center footer-logo-3d overflow-hidden ring-2 ring-green-100 shadow-lg shadow-green-100/70">
+                  <img src={yalaLogo} alt="YALA Healthcare logo" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-xl font-display font-bold">YALA</span>
               </div>
               <p className="text-gray-400 text-sm">
                 Caring for Healthy Life
@@ -1450,8 +1559,8 @@ export default function YalaModernWebsite() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${selectedProduct.color} flex items-center justify-center pulse-glow mb-6`}>
-              <Flask className="w-10 h-10 text-white" />
+            <div className="w-full h-72 rounded-2xl bg-white flex items-center justify-center pulse-glow mb-6 p-6 overflow-hidden">
+              <img src={selectedProduct.image} alt={`${selectedProduct.name} product packaging`} className="w-full h-full object-contain" />
             </div>
 
             <span className="inline-block px-3 py-1 glass rounded-full text-sm mb-4">{selectedProduct.category}</span>
